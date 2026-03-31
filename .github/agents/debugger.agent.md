@@ -38,7 +38,6 @@ tools:
 
 ### 3단계: RAG (Foundry IQ) 점검
 - `KNOWLEDGE_BASE_NAME` 설정 여부
-- `AZURE_SEARCH_ENDPOINT` 설정 여부 (AI Search 엔드포인트, Foundry 프로젝트 엔드포인트와 다름)
 - AI Search 서비스에 "Search Index Data Reader" RBAC 역할이 할당되었는지 (`az role assignment list`)
 - AI Search 서비스의 인증 모드가 `aadOrApiKey`인지 확인 (`az search service show`에서 `authOptions` 확인, `apiKeyOnly`이면 RBAC 불가)
 - `AzureAISearchContextProvider`가 `mode="agentic"`으로 생성되는지

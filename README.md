@@ -165,9 +165,8 @@ cp demo/.env.example demo/.env   # Windows: copy demo\.env.example demo\.env
 | 변수 | 필수 | 설명 | 찾는 방법 |
 |------|------|------|----------|
 | `FOUNDRY_PROJECT_ENDPOINT` | ✅ | Foundry 프로젝트 엔드포인트 URL | AI Foundry 포털 → 프로젝트 → 개요 → "프로젝트 엔드포인트" 복사 |
-| `FOUNDRY_MODEL_DEPLOYMENT_NAME` | ❌ | 모델 배포 이름 (기본값: `gpt-5.4-2`) | 2단계에서 지정한 배포 이름 |
-| `KNOWLEDGE_BASE_NAME` | ⚠️ | Knowledge Base 이름 (시나리오 1·3 필수) | 4단계에서 생성 |
-| `AZURE_SEARCH_ENDPOINT` | ⚠️ | AI Search 엔드포인트 (시나리오 1·3 필수) | 4단계에서 확인 |
+| `FOUNDRY_MODEL_DEPLOYMENT_NAME` | ✅ | 모델 배포 이름 | 2단계에서 지정한 배포 이름 |
+| `KNOWLEDGE_BASE_NAME` | ✅ | Knowledge Base 이름 | 5단계에서 생성 |
 
 ```bash
 # Azure 로그인
@@ -253,13 +252,7 @@ Knowledge Base 생성 후, `demo/.env`에 다음 환경변수를 추가합니다
 
 ```bash
 KNOWLEDGE_BASE_NAME=company-docs-kb
-AZURE_SEARCH_ENDPOINT=https://your-search-service.search.windows.net/
 ```
-
-> **AI Search 엔드포인트 찾는 방법**:
-> 1. [AI Foundry 포털](https://ai.azure.com) → 프로젝트 선택
-> 2. **연결된 리소스** 또는 **설정 → 연결** 탭
-> 3. 타입이 `CognitiveSearch`인 연결에서 엔드포인트 URL 확인 (예: `https://xxx.search.windows.net/`)
 
 ### 6단계: AI Search RBAC 권한 설정
 
@@ -367,7 +360,7 @@ vibe-coding/
 | 가상환경이 활성화되었는지 확인 | 터미널에서 `which python` (macOS/Linux) 또는 `where python` (Windows) 실행 → `.venv` 경로가 표시되어야 함 |
 | `streamlit run` 후 브라우저가 열리지 않음 | 브라우저에서 직접 http://localhost:8501 접속 |
 | `FOUNDRY_PROJECT_ENDPOINT` 관련 에러 | `demo/.env` 파일에 올바른 엔드포인트가 입력되었는지 확인. 형식: `https://<name>.services.ai.azure.com/api/projects/<id>` |
-| RAG 시나리오에서 `Unauthorized` 에러 | `AZURE_SEARCH_ENDPOINT`가 올바른지 확인. AI Search 서비스에 "Search Index Data Reader" RBAC 역할이 할당되었는지 확인 (4-1단계 참고) |
+| RAG 시나리오에서 `Unauthorized` 에러 | AI Search 서비스에 "Search Index Data Reader" RBAC 역할이 할당되었는지 확인 (4-1단계 참고) |
 | RAG 시나리오에서 `Forbidden` 에러 | AI Search 서비스의 인증 모드를 확인: `az search service show --name <서비스명> --resource-group <RG>`에서 `authOptions`가 `apiKeyOnly`이면 RBAC 불가. `az search service update --name <서비스명> --resource-group <RG> --auth-options aadOrApiKey --aad-auth-failure-mode http403`으로 변경 |
 | Blob 업로드 시 권한 오류 | `--auth-mode login` 추가, 또는 스토리지 계정에 "Storage Blob Data Contributor" 역할 할당 |
 | Knowledge Base에서 스토리지 계정이 안 보임 | Foundry 프로젝트와 스토리지 계정이 같은 구독에 있는지 확인 |
@@ -386,6 +379,42 @@ vibe-coding/
 | **MCP 도구 (로컬)** | ✅ `MCPStdioTool` (로컬 subprocess) | ❌ `McpTool` (원격 URL만 지원) | 로컬 stdio 연결 불가 |
 
 > ⚠️ 위 기능들은 **Foundry Portal(UI)**에서는 일부 지원되지만, **Python SDK**에는 아직 반영되지 않은 상태입니다. (2026년 3월 기준, `azure-ai-agents==1.2.0b5`)
+
+## 커스터마이징 가이드
+
+### Foundry Agent Service SDK v2 마이그레이션
+
+Foundry Agent Service SDK(`azure-ai-agents`)가 멀티 에이전트 워크플로우와 Foundry IQ를 정식 지원하게 되면, 다음 파일들을 수정합니다:
+
+| 수정 대상 | 변경 내용 |
+|----------|----------|
+| `demo/requirements.txt` | `agent-framework-*` 패키지를 `azure-ai-agents>=2.x`로 교체 |
+| `demo/app.py` | import 경로 변경: `agent_framework` → `azure.ai.agents` SDK v2 클래스. `Agent`, `WorkflowBuilder`, `AzureAISearchContextProvider` 등을 SDK v2 API로 교체 |
+| `demo/app.py` | 클라이언트 생성: `AzureAIAgentClient` → SDK v2의 클라이언트 클래스로 변경 |
+| `demo/app.py` | RAG: `AzureAISearchContextProvider(knowledge_base_name=...)` → SDK v2의 Knowledge Base 연결 API로 변경 |
+| `demo/app.py` | MCP: `MCPStdioTool` → SDK v2의 MCP 도구 클래스로 변경 (로컬 stdio 지원 여부 확인) |
+| `demo/app.py` | 멀티 에이전트: `WorkflowBuilder` + `AgentExecutor` + `Case`/`Default` → SDK v2의 워크플로우 API로 변경 |
+| `.github/copilot-instructions.md` | SDK import 경로 매핑, WorkflowBuilder API 사용법, 코드 패턴을 SDK v2 기준으로 갱신 |
+| `.github/prompts/*.prompt.md` | 코드 템플릿의 import 경로와 클래스명을 SDK v2 기준으로 갱신 |
+| `.github/agents/debugger.agent.md` | 진단 체크리스트의 SDK 관련 항목을 SDK v2 기준으로 갱신 |
+| README.md | "Foundry Agent Service SDK 지원 현황" 표 갱신, 설치 명령어에서 `--pre` 플래그 제거 검토 |
+
+### 다른 업종 데모로 변경 (예: 제조)
+
+이 데모를 제조업 등 다른 업종에 맞게 변경하려면, 다음 파일들을 수정합니다:
+
+| 수정 대상 | 변경 내용 | 예시 (제조) |
+|----------|----------|------------|
+| `docs/*.md` | 사내 문서를 해당 업종 문서로 교체 | `MFG-001_생산라인_운영매뉴얼.md`, `QC-002_품질검사_기준서.md`, `SAF-003_안전관리_규정.md` |
+| `demo/mock_data.json` | 업무 도구의 mock 데이터를 업종에 맞게 변경. 최상위 4개 키(`calendar`, `emails`, `tasks`, `sales`)의 항목 내용 교체 | `calendar`: 생산 회의·설비 점검 일정, `tasks`: 생산 오더·품질 검사 작업, `sales` → `production`: 라인별 생산량·불량률·가동률 |
+| `demo/mcp_server.py` | MCP 도구 함수를 업종 업무에 맞게 추가/변경 | `get_production_status()`, `get_defect_rate()`, `get_equipment_schedule()` |
+| `demo/app.py` | 시나리오 이름·설명·예시 질문을 업종에 맞게 변경 | "오늘 A라인 생산 현황은?", "이번 달 불량률 추이 알려줘", "설비 점검 일정 확인해줘" |
+| `demo/app.py` | 에이전트 시스템 프롬프트를 업종 맥락에 맞게 수정 | "당신은 제조 현장 업무를 지원하는 AI 어시스턴트입니다" |
+| `.github/copilot-instructions.md` | mock 데이터 스키마, 시나리오 설명, 예시 질문을 업종 기준으로 갱신 | `sales` 키를 `production`으로 변경, 제품 카테고리를 생산 라인명으로 변경 |
+| Blob Storage | 4단계에서 업로드하는 문서를 업종 문서로 교체 | 생산 매뉴얼, 품질 기준서, 안전 규정 등 |
+| Knowledge Base | 5단계에서 KB 이름을 업종에 맞게 변경 (예: `manufacturing-docs-kb`) | `.env`의 `KNOWLEDGE_BASE_NAME` 값도 함께 변경 |
+
+> **핵심 포인트**: 코드 구조(`Agent`, `WorkflowBuilder`, `MCPStdioTool`)는 그대로 유지하고, **데이터와 프롬프트만 교체**하면 됩니다. `.github/` 하위 Copilot 설정 파일도 함께 갱신하면 Copilot이 새로운 업종 맥락에 맞는 코드를 생성합니다.
 
 ## 참고 자료
 

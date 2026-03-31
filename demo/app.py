@@ -33,7 +33,6 @@ load_dotenv()
 PROJECT_ENDPOINT = os.getenv("FOUNDRY_PROJECT_ENDPOINT")
 MODEL = os.getenv("FOUNDRY_MODEL_DEPLOYMENT_NAME", "gpt-4.1")
 KNOWLEDGE_BASE_NAME = os.getenv("KNOWLEDGE_BASE_NAME")
-AZURE_SEARCH_ENDPOINT = os.getenv("AZURE_SEARCH_ENDPOINT")
 
 
 # ─────────────────────────────────────────────
@@ -87,11 +86,10 @@ def _get_kb_context_provider():
 
     KNOWLEDGE_BASE_NAME을 AzureAISearchContextProvider에 직접 전달합니다.
     """
-    if not KNOWLEDGE_BASE_NAME or not AZURE_SEARCH_ENDPOINT:
+    if not KNOWLEDGE_BASE_NAME:
         return None
     return AzureAISearchContextProvider(
         knowledge_base_name=KNOWLEDGE_BASE_NAME,
-        endpoint=AZURE_SEARCH_ENDPOINT,
         credential=DefaultAzureCredential(),
         mode="agentic",
         top_k=3,
