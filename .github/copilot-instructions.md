@@ -1,6 +1,6 @@
 # 프로젝트 글로벌 인스트럭션
 
-<!-- 🔒 프로젝트 전용: 이 프로젝트(vibe-coding)에만 해당하는 규칙입니다. 다른 프로젝트에 복사하지 마세요. -->
+<!-- 🔒 프로젝트 전용: 이 프로젝트(foundry-agent-x-github-copilot)에만 해당하는 규칙입니다. 다른 프로젝트에 복사하지 마세요. -->
 
 > 공통 규칙(Python 컨벤션, Azure 인증, 한국어 작성)은 `.github/instructions/` 아래 파일에서 관리합니다.
 > 이 파일에는 **이 프로젝트에만 해당하는 규칙**을 작성합니다.
@@ -23,7 +23,7 @@
 - **멀티 에이전트**: `WorkflowBuilder` + `AgentExecutor` + `Case`/`Default` → `WorkflowAgent`
   - RAG/TOOL 단독 경로 + BOTH 순차 파이프라인 (`add_chain`으로 RAG → Tool → Summarizer)
 - **인증**: `azure-identity` → `DefaultAzureCredential`
-- **모델**: Azure AI Foundry 배포 모델 (기본 `gpt-5.4-2`)
+- **모델**: Azure AI Foundry 배포 모델 (기본 `gpt-4.1`)
 - **환경변수**: `python-dotenv`
 
 ## 프로젝트 코드 패턴
@@ -46,14 +46,6 @@
 - 이벤트 루프, 클라이언트 등 **프로세스 수명 동안 유지해야 하는 리소스**에만 사용한다.
 - **`WorkflowAgent`(`create_workflow_agent`)에는 `@st.cache_resource`를 사용하지 않는다.** `WorkflowAgent`는 내부 실행 상태를 추적하므로, 캐시된 인스턴스를 재사용하면 "Concurrent executions are not allowed" 오류가 발생한다. 매 요청마다 새 인스턴스를 생성한다.
 - 요청마다 달라지는 입력값이 있는 함수에는 사용하지 않는다.
-
-## 비동기/스트리밍 패턴
-
-Streamlit은 동기 환경이므로, Agent Framework의 비동기 API를 호출할 때 다음 패턴을 사용한다:
-
-1. **공유 이벤트 루프**: `@st.cache_resource`로 백그라운드 데몬 스레드에서 `asyncio` 이벤트 루프를 하나 생성하고 앱 전체에서 공유한다.
-2. **스트리밍 실행**: `agent.run(prompt, stream=True)`로 토큰 단위 스트리밍을 사용한다. 비동기 스트림을 `queue.Queue`로 동기 제너레이터로 변환하고, `st.write_stream()`으로 실시간 표시한다.
-3. **`asyncio.run()` 사용 금지**: Streamlit 메인 스레드에서 `asyncio.run()`을 호출하면 이벤트 루프 충돌이 발생하므로 사용하지 않는다.
 
 ## SDK Import 경로 매핑
 
