@@ -9,7 +9,7 @@
 
 > **"코드를 직접 작성하지 않았습니다."**
 > 이 프로젝트의 모든 소스코드(`demo/app.py`, `demo/mcp_server.py` 등)는
-> `.github/` 디렉토리에 배치한 **9개의 커스텀 설정 파일**(인스트럭션·프롬프트·에이전트)만으로
+> `.github/` 디렉토리에 배치한 **11개의 커스텀 설정 파일**(인스트럭션·프롬프트·에이전트·스킬)만으로
 > GitHub Copilot이 생성한 것입니다.
 
 ---
@@ -21,7 +21,7 @@
 - **"AI 코딩 어시스턴트로 실제 프로젝트를 만들 수 있나요?"** — 단순 코드 자동완성을 넘어, 프로젝트 전체를 AI가 생성·리뷰·디버깅하는 **바이브 코딩**이 실무에서 가능한지
 - **"멀티 에이전트 워크플로우를 어떻게 구성하나요?"** — RAG, 도구 호출, 에이전트 라우팅 같은 패턴을 하나의 워크플로우로 조합하는 방법
 
-이 프로젝트는 **두 질문에 대한 실전 답변**입니다. `.github/` 폴더의 9개 Markdown 파일이 "설계 문서"이자 "AI에 대한 지시서" 역할을 하고, Copilot이 그에 따라 코드를 생성합니다. 동시에 생성된 코드는 Foundry의 Agent Framework SDK로 3가지 엔터프라이즈 AI 패턴(RAG, MCP, 멀티 에이전트)을 완전한 형태로 구현합니다.
+이 프로젝트는 **두 질문에 대한 실전 답변**입니다. `.github/` 폴더의 11개 Markdown 파일이 "설계 문서"이자 "AI에 대한 지시서" 역할을 하고, Copilot이 그에 따라 코드를 생성합니다. 동시에 생성된 코드는 Foundry의 Agent Framework SDK로 3가지 엔터프라이즈 AI 패턴(RAG, MCP, 멀티 에이전트)을 완전한 형태로 구현합니다.
 
 ---
 
@@ -38,14 +38,15 @@
 │  .github/                   │      │  ✅ 소스코드 생성           │
 │  ├── copilot-instructions   │ ───→ │  ✅ MCP 도구 함수 작성      │
 │  ├── instructions/ (3개)    │      │  ✅ 코드 리뷰 수행          │
-│  ├── prompts/ (3개)         │      │  ✅ 런타임 문제 진단        │
-│  └── agents/ (2개)          │      │  ✅ 기술 스택 패턴 준수      │
+│  ├── skills/ (2개)          │      │  ✅ 런타임 문제 진단        │
+│  ├── prompts/ (3개)         │      │  ✅ 기술 스택 패턴 준수      │
+│  └── agents/ (2개)          │      │                            │
 │                             │      │                            │
-│  = 9개의 Markdown 파일       │      │  = 프로젝트 전체 코드        │
+│  = 11개의 Markdown 파일       │      │  = 프로젝트 전체 코드        │
 └─────────────────────────────┘      └────────────────────────────┘
 ```
 
-핵심은 **"무엇을 만들 것인가"와 "어떤 패턴을 따를 것인가"를 정확히 문서화**하면, AI가 일관된 품질의 코드를 생성한다는 것입니다. `.github/` 디렉토리의 9개 파일이 바로 그 문서입니다.
+핵심은 **"무엇을 만들 것인가"와 "어떤 패턴을 따를 것인가"를 정확히 문서화**하면, AI가 일관된 품질의 코드를 생성한다는 것입니다. `.github/` 디렉토리의 11개 파일이 바로 그 문서입니다.
 
 ---
 
@@ -63,7 +64,7 @@
 ## 주요 특징
 
 - **100% 바이브 코딩** — 모든 소스코드를 GitHub Copilot이 `.github/` 설정 파일을 참조하여 생성
-- **9개 커스텀 설정 파일** — 인스트럭션(자동 적용) · 프롬프트(수동 호출) · 에이전트(수동 호출)로 분리된 체계적 구성
+- **11개 커스텀 설정 파일** — 인스트럭션(자동 적용) · 프롬프트(수동 호출) · 에이전트(수동 호출) · 스킬(필요 시 자동 로드)로 분리된 체계적 구성
 - **3가지 엔터프라이즈 AI 패턴** — RAG(문서 검색), MCP(도구 호출), 멀티 에이전트 워크플로우를 하나의 앱에서 시연
 - **실시간 스트리밍** — 토큰 단위 응답 스트리밍으로 체감 응답 속도 향상
 - **재사용 가능한 설정** — 공용 인스트럭션 3개(`python`, `azure`, `korean`)를 다른 프로젝트에 즉시 복사하여 사용 가능
@@ -74,7 +75,7 @@
 ## GitHub Copilot 커스텀 설정
 
 이 프로젝트의 소스코드(`demo/app.py`, `demo/mcp_server.py` 등)는 **GitHub Copilot이 `.github/` 하위 md 파일을 참조하여 생성**한 것입니다.
-`.github/` 디렉토리에 **9개의 md 파일**을 배치하여 Copilot의 코드 생성·리뷰·디버깅 품질을 제어합니다.
+`.github/` 디렉토리에 **11개의 md 파일**을 배치하여 Copilot의 코드 생성·리뷰·디버깅 품질을 제어합니다.
 
 ### 파일 유형별 동작 방식
 
@@ -82,6 +83,7 @@
 |----------|------|----------|----------|
 | **글로벌 인스트럭션** | `.github/copilot-instructions.md` | 없음 | ✅ 자동 — 모든 Copilot 요청에 항상 포함 |
 | **파일 패턴 인스트럭션** | `.github/instructions/*.instructions.md` | 없음 | ✅ 자동 — `applyTo` 패턴에 매칭되는 파일 작업 시 포함 |
+| **스킬** | `.github/skills/*/SKILL.md` | 없음 | ✅ 자동 — 관련 주제 감지 시 필요한 스킬만 로드 |
 | **재사용 프롬프트** | `.github/prompts/*.prompt.md` | 채팅에서 `#파일명` 입력 | 🔘 수동 |
 | **커스텀 에이전트** | `.github/agents/*.agent.md` | 채팅에서 `@에이전트명` 입력 | 🔘 수동 |
 
@@ -107,6 +109,8 @@
 | `prompts/add-scenario.prompt.md` | **새 시나리오 추가** — `Agent` 생성 코드 템플릿, `tools`/`context_providers` 구성, 사이드바 연동 규칙 | `create_rag_agent`/`create_tool_agent` 패턴이 `demo/app.py`에 종속 |
 | `prompts/create-tool.prompt.md` | **새 MCP 도구 생성** — `@server.tool()` 데코레이터, `mock_data.json` 연동, RAG/MCP 구분 기준 | `demo/mcp_server.py`의 FastMCP 서버 구조에 종속 |
 | `prompts/review-code.prompt.md` | **코드 리뷰 요청** — 8개 항목 체크리스트(패턴 준수, 보안, 스트리밍, 멀티 에이전트 정합성 등) | Agent Framework + WorkflowBuilder 패턴 기준 |
+| `skills/agent-framework-codegen/SKILL.md` | **Agent Framework 코드 생성 스킬** — SDK import 경로, 에이전트/워크플로우/RAG/MCP 생성 패턴, Streamlit 비동기 통합, 트러블슈팅 | Agent Framework SDK API와 이 프로젝트의 코드 패턴에 종속 |
+| `skills/foundry-agent-v2-migration/SKILL.md` | **SDK v2 마이그레이션 스킬** — Agent Framework → SDK v2 전환 가이드, 기능 비교, import 매핑, 단계별 마이그레이션 계획 | SDK v2 GA 시점까지 Agent Framework 유지 필요 |
 | `agents/reviewer.agent.md` | **코드 리뷰어 에이전트** — 읽기 전용으로 코드 변경사항을 검토하고 개선사항 제안 | 리뷰 기준이 `AzureAIAgentClient`/`WorkflowBuilder` 패턴에 특화 |
 | `agents/debugger.agent.md` | **트러블슈터 에이전트** — 5단계 진단 체크리스트(환경→Azure 인증→RAG→MCP→Streamlit) 기반으로 런타임 문제 진단 | 진단 대상이 Foundry IQ, MCPStdioTool, Streamlit 비동기 패턴 등 이 프로젝트 고유 구성 |
 
@@ -120,6 +124,12 @@
 │   ├── python.instructions.md       ← *.py 편집 시 자동
 │   ├── azure.instructions.md        ← *.py 편집 시 자동
 │   └── korean.instructions.md       ← 모든 파일 편집 시 자동
+│
+├── skills/                          ← 🔒 관련 주제 감지 시 자동 로드
+│   ├── agent-framework-codegen/     ← Agent Framework SDK 코드 생성 시
+│   │   └── SKILL.md
+│   └── foundry-agent-v2-migration/  ← SDK v2 마이그레이션 시
+│       └── SKILL.md
 │
 ├── prompts/                         ← 🔒 #이름으로 수동 호출
 │   ├── add-scenario.prompt.md       ← #add-scenario
@@ -270,7 +280,7 @@ az login
 # az account set --subscription "<구독 이름 또는 ID>"
 ```
 
-> **시나리오 2(MCP)만 사용한다면** `FOUNDRY_PROJECT_ENDPOINT`만 설정하고 바로 실행 가능합니다:
+> **시나리오 2(MCP)만 사용한다면** `FOUNDRY_PROJECT_ENDPOINT`와 `FOUNDRY_MODEL_DEPLOYMENT_NAME`만 설정하고 바로 실행 가능합니다:
 > ```bash
 > streamlit run demo/app.py
 > ```
@@ -399,7 +409,7 @@ Blob에 문서 추가/수정 후 Knowledge Base에서 **동기화** 클릭
                                             │
 ┌──────────────────┐            ┌───────────┴────────────┐
 │  .github/        │            │     Streamlit Demo      │
-│  (9개 설정 파일)  │            │     (demo/app.py)       │
+│  (11개 설정 파일) │            │     (demo/app.py)       │
 │                  │            │                         │
 │  Copilot이       │    생성    │  ┌───────────────────┐  │
 │  이 파일들을     │ ────────→  │  │🤖 WorkflowAgent   │  │  ← 시나리오 3
@@ -426,6 +436,7 @@ Blob에 문서 추가/수정 후 Knowledge Base에서 **동기화** 클릭
 │  1. 설계: .github/ 디렉토리에 규칙 문서화                             │
 │     copilot-instructions.md  → 기술 스택, SDK 패턴, 데이터 스키마      │
 │     instructions/*.md        → Python 컨벤션, Azure 보안, 한국어 규칙  │
+│     skills/*/SKILL.md         → SDK 코드 생성, v2 마이그레이션 가이드  │
 │     prompts/*.md             → 도구 생성, 시나리오 추가 템플릿          │
 │     agents/*.md              → 코드 리뷰어, 트러블슈터 에이전트 정의    │
 ├─────────────────────────────────────────────────────────────────────┤
@@ -465,6 +476,11 @@ github-copilot-foundry-agent-workflow/
 │   │   ├── python.instructions.md       #     *.py → Python 컨벤션
 │   │   ├── azure.instructions.md        #     *.py → Azure 인증/보안
 │   │   └── korean.instructions.md       #     *    → 한국어 작성 규칙
+│   ├── skills/                          #   🔒 관련 주제 감지 시 자동 로드
+│   │   ├── agent-framework-codegen/     #     Agent Framework SDK 코드 생성
+│   │   │   └── SKILL.md
+│   │   └── foundry-agent-v2-migration/  #     SDK v2 마이그레이션 가이드
+│   │       └── SKILL.md
 │   ├── prompts/                         #   🔒 #이름으로 수동 호출
 │   │   ├── add-scenario.prompt.md       #     새 시나리오 추가
 │   │   ├── create-tool.prompt.md        #     새 MCP 도구 생성
@@ -530,6 +546,7 @@ github-copilot-foundry-agent-workflow/
 | **파일 패턴 인스트럭션** | `applyTo`로 특정 파일 유형에만 자동 적용되는 규칙 작성 | `.github/instructions/*.md` |
 | **재사용 프롬프트** | 반복 작업(도구 추가, 시나리오 추가)을 템플릿화하여 `#이름`으로 호출 | `.github/prompts/*.md` |
 | **커스텀 에이전트** | 코드 리뷰어·트러블슈터 등 역할별 AI 에이전트를 `@이름`으로 호출 | `.github/agents/*.md` |
+| **커스텀 스킬** | SDK 코드 생성, 마이그레이션 가이드 등 도메인 지식을 필요 시 자동 로드 | `.github/skills/*/SKILL.md` |
 | **공용 vs. 전용 분리** | 재사용 가능한 공통 규칙과 프로젝트 종속 규칙을 분리하는 전략 | README 내 재사용 범위 표 |
 
 ### 멀티 에이전트 워크플로우 (Microsoft Foundry)
