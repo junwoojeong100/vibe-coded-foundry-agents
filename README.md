@@ -48,6 +48,102 @@
 
 핵심은 **"무엇을 만들 것인가"와 "어떤 패턴을 따를 것인가"를 정확히 문서화**하면, AI가 일관된 품질의 코드를 생성한다는 것입니다. `.github/` 디렉토리의 11개 파일이 바로 그 문서입니다.
 
+### 두 가지 도구로 바이브 코딩
+
+GitHub Copilot은 **VS Code(IDE)**뿐 아니라 **Copilot CLI(터미널)**에서도 동일한 `.github/` 설정 파일을 인식합니다. 개발 환경에 따라 두 가지 방식을 선택하거나 병행할 수 있습니다.
+
+| 항목 | 🖥️ VS Code (IDE) | 💻 Copilot CLI (터미널) |
+|------|:---:|:---:|
+| **설정 파일 인식** | `copilot-instructions.md`, `instructions/`, `skills/`, `prompts/`, `agents/` | `copilot-instructions.md`, `instructions/` + `AGENTS.md` 등 |
+| **코드 생성** | 에디터 내 인라인 + 채팅 패널 | 터미널에서 직접 파일 생성/수정 |
+| **프롬프트 호출** | `/프롬프트명` (채팅) | 자연어로 직접 요청 |
+| **에이전트 호출** | `@에이전트명` (채팅) | `/agent`로 선택 |
+| **스킬 관리** | 자동 로드 + `/스킬명` | `/skills`로 관리 |
+| **MCP 서버** | 설정 기반 자동 연결 | `/mcp`로 관리 |
+| **코드 리뷰** | `@reviewer` 에이전트 | `/review` 명령어 |
+| **변경사항 확인** | Git 패널 | `/diff` 명령어 |
+| **플랜 모드** | — | `/plan` 모드 지원 |
+| **PR 생성 위임** | 수동 | `/delegate`로 Copilot에 위임 |
+
+### Copilot CLI로 바이브 코딩하기
+
+[GitHub Copilot CLI](https://docs.github.com/copilot/concepts/agents/about-copilot-cli)는 터미널에서 직접 AI 코딩 에이전트와 대화하며 코드를 생성·수정·리뷰할 수 있는 도구입니다. 이 프로젝트의 `.github/` 설정 파일을 자동으로 인식하여 동일한 바이브 코딩이 가능합니다.
+
+#### 설치
+
+```bash
+# macOS / Linux (Homebrew)
+brew install copilot-cli
+
+# macOS / Linux (install script)
+curl -fsSL https://gh.io/copilot-install | bash
+
+# Windows (WinGet)
+winget install GitHub.Copilot
+
+# npm (모든 플랫폼)
+npm install -g @github/copilot
+```
+
+> **사전 요구**: 활성화된 [GitHub Copilot 구독](https://github.com/features/copilot/plans)이 필요합니다.
+
+#### 이 프로젝트에서 사용하기
+
+```bash
+# 1. 프로젝트 디렉토리로 이동
+cd github-copilot-foundry-agent-workflow
+
+# 2. Copilot CLI 실행 — .github/ 설정 파일이 자동으로 인식됩니다
+copilot
+
+# 3. (최초 1회) 로그인
+/login
+
+# 4. 인식된 인스트럭션 확인
+/instructions
+```
+
+이후 자연어로 요청하면 `.github/copilot-instructions.md`와 `instructions/*.md`의 규칙을 반영한 코드를 생성합니다:
+
+```
+> "RAG 에이전트에 top_k를 5로 변경해줘"
+> "새 MCP 도구 get_employee_info를 추가해줘"
+> "멀티 에이전트 워크플로우에 새로운 분류 경로를 추가해줘"
+```
+
+#### CLI 워크플로우
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  1. 시작: copilot 실행 → .github/ 설정 자동 인식                  │
+│     copilot-instructions.md, instructions/*.md → 자동 적용       │
+├─────────────────────────────────────────────────────────────────┤
+│  2. 계획: /plan 모드로 구현 계획 수립 (선택)                       │
+│     "MCP 도구 3개를 추가하려면 어떤 순서로 해야 할까?"              │
+├─────────────────────────────────────────────────────────────────┤
+│  3. 생성: 자연어로 코드 생성/수정 요청                              │
+│     "get_employee_info MCP 도구를 mcp_server.py에 추가해줘"       │
+├─────────────────────────────────────────────────────────────────┤
+│  4. 검증: /diff로 변경사항 확인 → /review로 코드 리뷰              │
+├─────────────────────────────────────────────────────────────────┤
+│  5. 완료: 커밋 또는 /delegate로 PR 생성을 Copilot에 위임           │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### CLI에서 `.github/` 설정 파일 동작 방식
+
+이 프로젝트의 `.github/` 설정 파일 11개 중 Copilot CLI가 자동으로 인식하는 범위:
+
+| `.github/` 파일 | CLI 인식 | CLI에서의 활용 |
+|------|:---:|------|
+| `copilot-instructions.md` | ✅ 자동 | 프로젝트 기술 스택·코드 패턴·캐싱 규칙이 모든 요청에 반영 |
+| `instructions/*.instructions.md` | ✅ 자동 | Python 컨벤션, Azure 보안, 한국어 규칙이 자동 적용 |
+| `skills/*/SKILL.md` | ✅ `/skills` | SDK 코드 생성·마이그레이션 패턴을 명시적으로 참조 가능 |
+| `prompts/*.prompt.md` | ⚠️ 직접 호출 불가 | 프롬프트 내용을 자연어로 풀어서 요청 (예: "새 MCP 도구를 create-tool 프롬프트 패턴으로 만들어줘") |
+| `agents/*.agent.md` | ⚠️ 직접 호출 불가 | 에이전트 역할을 자연어로 지시 (예: "코드 리뷰어 관점에서 이 변경사항 검토해줘") |
+
+> **핵심**: `copilot-instructions.md`와 `instructions/` 3개 파일은 **IDE와 CLI 모두에서 자동 적용**됩니다. 이 4개 파일만으로도 프로젝트의 기술 스택·컨벤션·보안 규칙이 일관되게 반영됩니다.
+
 ---
 
 ## 이런 분들을 위한 프로젝트입니다
@@ -64,6 +160,7 @@
 ## 주요 특징
 
 - **100% 바이브 코딩** — 모든 소스코드를 GitHub Copilot이 `.github/` 설정 파일을 참조하여 생성
+- **IDE + CLI 지원** — VS Code 에디터뿐 아니라 [GitHub Copilot CLI](https://docs.github.com/copilot/concepts/agents/about-copilot-cli)(터미널)에서도 동일한 `.github/` 설정으로 바이브 코딩 가능
 - **11개 커스텀 설정 파일** — 인스트럭션(자동 적용) · 프롬프트(수동 호출) · 에이전트(수동 호출) · 스킬(자동 로드 + 수동 호출)로 분리된 체계적 구성
 - **3가지 엔터프라이즈 AI 패턴** — RAG(문서 검색), MCP(도구 호출), 멀티 에이전트 워크플로우를 하나의 앱에서 시연
 - **실시간 스트리밍** — 토큰 단위 응답 스트리밍으로 체감 응답 속도 향상
@@ -230,6 +327,7 @@ cp .github/instructions/korean.instructions.md   <새프로젝트>/.github/instr
 - **Git** — [다운로드](https://git-scm.com/downloads)
 - **Azure CLI** — [설치 가이드](https://learn.microsoft.com/cli/azure/install-azure-cli)
 - **Azure 구독** — [무료 체험 계정 만들기](https://azure.microsoft.com/free/) + Foundry 프로젝트
+- **GitHub Copilot CLI** (선택) — 터미널 기반 바이브 코딩 시. `brew install copilot-cli` (macOS/Linux) 또는 `winget install GitHub.Copilot` (Windows). [설치 가이드](https://docs.github.com/copilot/concepts/agents/about-copilot-cli)
 
 ### 1단계: 로컬 환경 준비
 
@@ -558,6 +656,7 @@ github-copilot-foundry-agent-workflow/
 | **재사용 프롬프트** | 반복 작업(도구 추가, 시나리오 추가)을 템플릿화하여 `/이름`으로 호출 | `.github/prompts/*.md` |
 | **커스텀 에이전트** | 코드 리뷰어·트러블슈터 등 역할별 AI 에이전트를 `@이름`으로 호출 | `.github/agents/*.md` |
 | **커스텀 스킬** | SDK 코드 생성, 마이그레이션 가이드 등 도메인 지식을 자동 로드 또는 `/스킬명`으로 명시적 호출 | `.github/skills/*/SKILL.md` |
+| **Copilot CLI 연동** | 터미널에서 `.github/` 설정을 활용한 바이브 코딩 워크플로우, IDE와 CLI 비교 | README 내 "Copilot CLI로 바이브 코딩하기" 섹션 |
 | **공용 vs. 전용 분리** | 재사용 가능한 공통 규칙과 프로젝트 종속 규칙을 분리하는 전략 | README 내 재사용 범위 표 |
 
 ### 멀티 에이전트 워크플로우 (Microsoft Foundry)
@@ -610,6 +709,11 @@ Foundry Agent Service SDK(`azure-ai-agents`)가 멀티 에이전트 워크플로
 > **핵심 포인트**: 코드 구조(`Agent`, `WorkflowBuilder`, `MCPStdioTool`)는 그대로 유지하고, **데이터와 프롬프트만 교체**하면 됩니다. `.github/` 하위 Copilot 설정 파일도 함께 갱신하면 Copilot이 새로운 업종 맥락에 맞는 코드를 생성합니다.
 
 ## 참고 자료
+
+### GitHub Copilot CLI
+
+- [GitHub Copilot CLI 공식 문서](https://docs.github.com/copilot/concepts/agents/about-copilot-cli)
+- [GitHub Copilot CLI 저장소](https://github.com/githubnext/copilot-cli)
 
 ### Microsoft Foundry & Agent Framework
 
