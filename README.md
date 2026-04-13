@@ -63,7 +63,7 @@ GitHub Copilot은 **VS Code(IDE)**뿐 아니라 **Copilot CLI(터미널)**에서
 | **코드 리뷰** | `@reviewer` 에이전트 | `/review` 명령어 |
 | **변경사항 확인** | Git 패널 | `/diff` 명령어 |
 | **플랜 모드** | `Shift+Tab`으로 Plan 모드 전환 | `/plan` 명령어 또는 `Shift+Tab` |
-| **PR 생성 위임** | 수동 | `/delegate`로 Copilot에 위임 |
+| **PR 생성 위임** | Copilot Coding Agent에 이슈 할당 | `/delegate`로 Copilot에 위임 |
 
 ### Copilot CLI로 바이브 코딩하기
 
