@@ -713,7 +713,7 @@ Foundry Agent Service SDK(`azure-ai-agents`)가 멀티 에이전트 워크플로
 ### GitHub Copilot CLI
 
 - [GitHub Copilot CLI 공식 문서](https://docs.github.com/copilot/concepts/agents/about-copilot-cli)
-- [GitHub Copilot CLI 저장소](https://github.com/githubnext/copilot-cli)
+- [GitHub Copilot CLI 저장소](https://github.com/github/copilot-cli)
 
 ### Microsoft Foundry & Agent Framework
 
