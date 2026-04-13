@@ -379,8 +379,8 @@ cp demo/.env.example demo/.env   # Windows: copy demo\.env.example demo\.env
 | 변수 | 필수 | 설명 | 찾는 방법 |
 |------|------|------|----------|
 | `FOUNDRY_PROJECT_ENDPOINT` | ✅ | Foundry 프로젝트 엔드포인트 URL | AI Foundry 포털 → 프로젝트 → 개요 → "프로젝트 엔드포인트" 복사 |
-| `FOUNDRY_MODEL_DEPLOYMENT_NAME` | ✅ | 모델 배포 이름 | 2단계에서 지정한 배포 이름 |
-| `KNOWLEDGE_BASE_NAME` | ✅ | Knowledge Base 이름 | 5단계에서 생성 |
+| `FOUNDRY_MODEL_DEPLOYMENT_NAME` | 선택 | 모델 배포 이름 (기본값: `gpt-4.1`) | 2단계에서 지정한 배포 이름 |
+| `KNOWLEDGE_BASE_NAME` | 조건부 | Knowledge Base 이름 (시나리오 1·3 사용 시 필수, 미설정 시 MCP만 동작) | 5단계에서 생성 |
 
 ```bash
 # Azure 로그인

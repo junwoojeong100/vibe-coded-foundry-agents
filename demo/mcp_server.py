@@ -27,6 +27,21 @@ def _current_month() -> str:
     return str(datetime.now().month)
 
 
+def _get_month_data(category: str, month: str | None = None) -> list | dict:
+    """해당 월의 mock 데이터를 반환합니다. 1~2월은 3월 샘플로 대체합니다.
+
+    Args:
+        category: 데이터 카테고리 (calendar, emails, tasks, sales)
+        month: 월 문자열 (미입력 시 현재 월)
+
+    Returns:
+        해당 월의 mock 데이터 (list 또는 dict)
+    """
+    if month is None:
+        month = _current_month()
+    return _MOCK[category].get(month, _MOCK[category]["3"])
+
+
 @server.tool()
 def get_calendar_events(date: str = "") -> str:
     """특정 날짜의 일정 목록을 조회합니다.
@@ -41,9 +56,9 @@ def get_calendar_events(date: str = "") -> str:
     try:
         month = str(int(date.split("-")[1]))
     except (IndexError, ValueError):
-        month = _current_month()
+        return f"⚠️ 날짜 형식이 올바르지 않습니다. YYYY-MM-DD 형식으로 입력해주세요. (입력값: {date})"
 
-    events = _MOCK["calendar"].get(month, _MOCK["calendar"]["3"])
+    events = _get_month_data("calendar", month)
 
     lines = [f"📅 {date} 일정:"]
     for ev in events:
@@ -55,7 +70,7 @@ def get_calendar_events(date: str = "") -> str:
 def create_calendar_event(
     title: str, date: str, time: str, duration_minutes: int = 60
 ) -> str:
-    """새 일정을 생성합니다.
+    """새 일정을 생성합니다 (시뮬레이션 — 실제 저장되지 않음).
 
     Args:
         title: 일정 제목
@@ -79,8 +94,11 @@ def search_emails(query: str, max_results: int = 5) -> str:
         query: 검색 키워드
         max_results: 최대 결과 수
     """
+    if not query.strip():
+        return "⚠️ 검색어를 입력해주세요."
+
     month = _current_month()
-    emails = _MOCK["emails"].get(month, _MOCK["emails"]["3"])
+    emails = _get_month_data("emails", month)
 
     results = [
         e
@@ -107,7 +125,7 @@ def get_tasks(status: str = "all") -> str:
         status: 필터 (all, pending, in_progress, done)
     """
     month = _current_month()
-    tasks = _MOCK["tasks"].get(month, _MOCK["tasks"]["3"])
+    tasks = _get_month_data("tasks", month)
 
     if status != "all":
         tasks = [t for t in tasks if t["status"] == status]
@@ -125,13 +143,16 @@ def get_tasks(status: str = "all") -> str:
 
 @server.tool()
 def create_task(title: str, priority: str = "보통", due_date: str = "") -> str:
-    """새 업무(태스크)를 생성합니다.
+    """새 업무(태스크)를 생성합니다 (시뮬레이션).
 
     Args:
         title: 업무 제목
         priority: 우선순위 (높음, 보통, 낮음)
         due_date: 마감일 (YYYY-MM-DD)
     """
+    valid_priorities = ("높음", "보통", "낮음")
+    if priority not in valid_priorities:
+        return f"⚠️ 우선순위는 {', '.join(valid_priorities)} 중 하나여야 합니다. (입력값: {priority})"
     task_id = f"T-{random.randint(200, 999)}"
     return (
         f"✅ 업무가 생성되었습니다:\n"
@@ -146,12 +167,15 @@ def create_task(title: str, priority: str = "보통", due_date: str = "") -> str
 def query_sales_data(period: str = "monthly", product: str = "") -> str:
     """매출 데이터를 조회합니다.
 
+    현재 mock 데이터는 월별(monthly) 집계만 지원합니다.
+    period 값은 응답 헤더에 표시되지만, 실제 데이터 집계 단위는 월별로 고정됩니다.
+
     Args:
         period: 조회 기간 (daily, weekly, monthly, quarterly)
         product: 제품명 필터 (미입력 시 전체)
     """
     month = _current_month()
-    sales = _MOCK["sales"].get(month, _MOCK["sales"]["3"])
+    sales = _get_month_data("sales", month)
 
     if product:
         sales = {k: v for k, v in sales.items() if product in k}

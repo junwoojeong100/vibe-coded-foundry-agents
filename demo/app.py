@@ -9,6 +9,7 @@ Microsoft Foundry 엔터프라이즈 AI 데모
 
 import asyncio
 import os
+import queue
 import sys
 import threading
 
@@ -333,21 +334,18 @@ def create_workflow_agent():
 # ─────────────────────────────────────────────
 # 에이전트 실행
 # ─────────────────────────────────────────────
-def run_agent(agent, prompt: str) -> str:
-    """에이전트를 동기적으로 실행합니다 (Streamlit 호환)."""
-    loop = _get_event_loop()
-    future = asyncio.run_coroutine_threadsafe(agent.run(prompt), loop)
-    response = future.result(timeout=120)
-    return response.text
-
-
 def stream_agent(agent, prompt: str):
     """에이전트를 스트리밍으로 실행합니다 (Streamlit write_stream 호환).
 
     토큰 단위로 yield하여 실시간으로 응답을 표시합니다.
-    """
-    import queue
 
+    Args:
+        agent: 실행할 에이전트 (Agent 또는 WorkflowAgent)
+        prompt: 사용자 입력 프롬프트
+
+    Yields:
+        str: 스트리밍 응답 텍스트 청크
+    """
     q = queue.Queue()
     sentinel = object()
 

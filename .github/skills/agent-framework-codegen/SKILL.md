@@ -203,11 +203,11 @@ def _get_event_loop():
 ### 4-3. 스트리밍 실행 (write_stream 호환)
 
 ```python
-import queue as queue_mod
+import queue
 
 def stream_agent(agent, prompt: str):
     """에이전트를 스트리밍으로 실행 (Streamlit write_stream 호환)."""
-    q = queue_mod.Queue()
+    q = queue.Queue()
     sentinel = object()
 
     async def _run():
